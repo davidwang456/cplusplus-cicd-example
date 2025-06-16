@@ -1,0 +1,55 @@
+image: gcc:latest
+
+variables:
+  BUILD_DIR: build
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+before_script:
+  - apt-get update -qq
+  - apt-get install -y -qq cmake
+
+build:
+  stage: build
+  script:
+    - mkdir -p $BUILD_DIR
+    - cd $BUILD_DIR
+    - cmake ..
+    - make
+  artifacts:
+    paths:
+      - $BUILD_DIR/calculator
+      - $BUILD_DIR/calculator_test
+
+test:
+  stage: test
+  script:
+    - cd $BUILD_DIR
+    - ./calculator_test
+  dependencies:
+    - build
+
+package:
+  stage: package
+  script:
+    - cd $BUILD_DIR
+    - tar -czf calculator.tar.gz calculator
+  artifacts:
+    paths:
+      - $BUILD_DIR/calculator.tar.gz
+  dependencies:
+    - build
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying application..."
+    - echo "This is where you would add your deployment commands"
+  dependencies:
+    - package
+  only:
+    - main 
