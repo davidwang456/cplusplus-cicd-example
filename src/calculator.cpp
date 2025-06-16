@@ -1,4 +1,5 @@
 #include "../include/calculator.h"
+#include <stdexcept>
 
 int Calculator::add(int a, int b) {
     return a + b;

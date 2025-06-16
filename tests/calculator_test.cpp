@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 #include "../include/calculator.h"
 
 void test_add() {
