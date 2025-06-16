@@ -23,4 +23,21 @@ target_include_directories(calculator_test PRIVATE include)
 # 安装规则
 install(TARGETS calculator
     RUNTIME DESTINATION bin
-) 
+)
+
+# 设置CPack配置
+set(CPACK_PACKAGE_NAME "calculator")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A simple calculator application")
+set(CPACK_PACKAGE_VENDOR "Your Company")
+set(CPACK_PACKAGE_CONTACT "your.email@example.com")
+
+# 设置RPM包配置
+set(CPACK_GENERATOR "RPM")
+set(CPACK_RPM_PACKAGE_RELEASE "1")
+set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+set(CPACK_RPM_PACKAGE_GROUP "Development/Tools")
+set(CPACK_RPM_PACKAGE_URL "https://your-company.com")
+set(CPACK_RPM_PACKAGE_REQUIRES "glibc")
+
+include(CPack) 
