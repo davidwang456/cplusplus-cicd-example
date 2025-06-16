@@ -41,7 +41,9 @@ package:
   stage: package
   script:
     - cd $BUILD_DIR
-    - cpack -G RPM
+    - cmake ..
+    - cat CPackConfig.cmake
+    - cpack --config CPackConfig.cmake
   artifacts:
     paths:
       - $BUILD_DIR/*.rpm

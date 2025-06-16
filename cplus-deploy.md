@@ -193,6 +193,296 @@ executable('calculator',
 
 可以发布各种格式的包，支持版本控制，与GitHub Actions集成。
 
+## 9. CPack
+
+CPack是CMake的打包工具，支持多种打包格式，使用简单，与CMake构建系统无缝集成。
+
+### 基本用法
+
+1. **在CMakeLists.txt中配置CPack**
+```cmake
+# 设置CPack基本配置
+set(CPACK_PACKAGE_NAME "calculator")
+set(CPACK_PACKAGE_VERSION "1.0")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A simple calculator")
+set(CPACK_PACKAGE_VENDOR "Your Company")
+set(CPACK_PACKAGE_CONTACT "your.email@example.com")
+
+# 选择打包格式
+set(CPACK_GENERATOR "RPM")  # 可选：RPM, DEB, TGZ, ZIP, NSIS等
+
+# 设置RPM特定配置
+set(CPACK_RPM_PACKAGE_RELEASE "1")
+set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+set(CPACK_RPM_PACKAGE_GROUP "Development/Tools")
+
+# 包含CPack模块
+include(CPack)
+```
+
+2. **使用CPack命令打包**
+```bash
+# 在build目录下执行
+cpack
+
+# 指定打包格式
+cpack -G RPM
+
+# 查看支持的打包格式
+cpack --help
+```
+
+### 支持的打包格式
+
+1. **RPM包（Linux）**
+```cmake
+set(CPACK_GENERATOR "RPM")
+set(CPACK_RPM_PACKAGE_RELEASE "1")
+set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+```
+
+2. **DEB包（Debian/Ubuntu）**
+```cmake
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6")
+```
+
+3. **TGZ/ZIP包（跨平台）**
+```cmake
+set(CPACK_GENERATOR "TGZ")
+# 或
+set(CPACK_GENERATOR "ZIP")
+```
+
+4. **NSIS安装程序（Windows）**
+```cmake
+set(CPACK_GENERATOR "NSIS")
+set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/icon.ico")
+set(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/icon.ico")
+```
+
+### 高级配置
+
+1. **文件安装规则**
+```cmake
+# 安装可执行文件
+install(TARGETS calculator
+    RUNTIME DESTINATION bin
+)
+
+# 安装文档
+install(FILES README.md LICENSE
+    DESTINATION share/doc/calculator
+)
+
+# 安装配置文件
+install(FILES config.ini
+    DESTINATION etc/calculator
+)
+```
+
+2. **依赖管理**
+```cmake
+# RPM依赖
+set(CPACK_RPM_PACKAGE_REQUIRES "glibc >= 2.17")
+
+# DEB依赖
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.17)")
+```
+
+3. **多组件打包**
+```cmake
+# 定义组件
+set(CPACK_COMPONENTS_ALL applications libraries headers)
+
+# 设置组件显示名称
+set(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "Calculator Application")
+set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Calculator Libraries")
+set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C++ Headers")
+
+# 设置组件描述
+set(CPACK_COMPONENT_APPLICATIONS_DESCRIPTION "Calculator executable")
+set(CPACK_COMPONENT_LIBRARIES_DESCRIPTION "Shared libraries")
+set(CPACK_COMPONENT_HEADERS_DESCRIPTION "C++ header files")
+```
+
+### 使用场景
+
+1. **简单应用打包**
+   - 单个可执行文件
+   - 少量配置文件
+   - 适合使用TGZ/ZIP格式
+
+2. **系统包分发**
+   - 需要系统集成
+   - 有依赖关系
+   - 适合使用RPM/DEB格式
+
+3. **Windows应用分发**
+   - 需要安装程序
+   - 需要开始菜单集成
+   - 适合使用NSIS格式
+
+4. **跨平台库分发**
+   - 包含头文件
+   - 包含库文件
+   - 适合使用多组件打包
+
+### 最佳实践
+
+1. **版本管理**
+```cmake
+# 使用项目版本
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+
+# 使用语义化版本号
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+```
+
+2. **文件组织**
+```cmake
+# 遵循FHS标准
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "calculator")
+set(CPACK_INSTALL_PREFIX "/usr")
+```
+
+3. **测试集成**
+```cmake
+# 在打包前运行测试
+enable_testing()
+add_test(NAME calculator_test COMMAND calculator_test)
+```
+
+4. **自动化脚本**
+```bash
+#!/bin/bash
+# build-and-package.sh
+
+# 构建项目
+mkdir -p build
+cd build
+cmake ..
+make
+
+# 运行测试
+ctest
+
+# 打包
+cpack
+```
+
+### 注意事项
+
+1. **平台特定配置**
+   - 检查目标平台支持
+   - 设置正确的架构
+   - 处理平台特定依赖
+
+2. **权限管理**
+   - 设置正确的文件权限
+   - 处理特殊文件（如配置文件）
+
+3. **调试技巧**
+   - 使用`cpack --debug`查看详细信息
+   - 检查生成的文件列表
+   - 验证包内容
+
+4. **常见问题**
+   - 确保所有文件都被正确安装
+   - 检查依赖关系
+   - 验证包的可安装性
+
+### CPack版本设置
+
+1. **基本版本设置**
+```bash
+# 设置主版本号
+cpack -D CPACK_PACKAGE_VERSION="1.0.0"
+
+# 分别设置主版本号、次版本号、修订号
+cpack -D CPACK_PACKAGE_VERSION_MAJOR="1" \
+      -D CPACK_PACKAGE_VERSION_MINOR="0" \
+      -D CPACK_PACKAGE_VERSION_PATCH="0"
+```
+
+2. **使用项目版本**
+```bash
+# 使用CMake项目版本
+cpack -D CPACK_PACKAGE_VERSION=${PROJECT_VERSION}
+
+# 在CMakeLists.txt中设置
+project(Calculator VERSION 1.0.0)
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+```
+
+3. **不同格式的版本设置**
+```bash
+# RPM包版本
+cpack -G RPM -D CPACK_RPM_PACKAGE_VERSION="1.0.0" \
+            -D CPACK_RPM_PACKAGE_RELEASE="1"
+
+# DEB包版本
+cpack -G DEB -D CPACK_DEBIAN_PACKAGE_VERSION="1.0.0-1"
+
+# NSIS安装程序版本
+cpack -G NSIS -D CPACK_PACKAGE_VERSION="1.0.0" \
+             -D CPACK_NSIS_DISPLAY_VERSION="1.0.0"
+```
+
+4. **版本号格式**
+```bash
+# 语义化版本号 (MAJOR.MINOR.PATCH)
+cpack -D CPACK_PACKAGE_VERSION="1.0.0"
+
+# 带发布号的版本
+cpack -D CPACK_PACKAGE_VERSION="1.0.0" \
+      -D CPACK_PACKAGE_RELEASE="1"
+
+# 完整版本号
+cpack -D CPACK_PACKAGE_VERSION="1.0.0-1"
+```
+
+5. **版本号验证**
+```bash
+# 使用正则表达式验证版本号格式
+if(NOT CPACK_PACKAGE_VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+$")
+    message(FATAL_ERROR "Invalid version format: ${CPACK_PACKAGE_VERSION}")
+endif()
+```
+
+6. **版本号最佳实践**
+```bash
+# 使用语义化版本号
+cpack -D CPACK_PACKAGE_VERSION="1.0.0"
+
+# 添加构建号
+cpack -D CPACK_PACKAGE_VERSION="1.0.0" \
+      -D CPACK_PACKAGE_BUILD_NUMBER="123"
+
+# 添加预发布标识
+cpack -D CPACK_PACKAGE_VERSION="1.0.0-beta.1"
+```
+
+7. **版本号组合使用**
+```bash
+# 完整版本信息
+cpack -D CPACK_PACKAGE_NAME="calculator" \
+      -D CPACK_PACKAGE_VERSION="1.0.0" \
+      -D CPACK_PACKAGE_RELEASE="1" \
+      -D CPACK_PACKAGE_BUILD_NUMBER="123" \
+      -D CPACK_GENERATOR="RPM"
+```
+
+注意事项：
+1. 版本号应该遵循语义化版本规范
+2. 不同包格式可能有不同的版本号要求
+3. 版本号应该与项目版本保持一致
+4. 考虑使用构建号或发布号
+5. 版本号中避免使用特殊字符
+
 ## 工具选择建议
 
 根据不同的使用场景，推荐以下工具：
